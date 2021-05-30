@@ -11,6 +11,7 @@ export function Header(): JSX.Element {
       top="0"
       left="0"
       right="0"
+      zIndex="10"
     >
       <Flex as="header" maxW={1250} mx="auto" h="80px" align="center">
         <NextLink href="/">

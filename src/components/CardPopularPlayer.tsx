@@ -1,4 +1,5 @@
-import { Flex, Text, Box, theme } from '@chakra-ui/react'
+import { Flex, Text, Box } from '@chakra-ui/react'
+import { Circle } from './Circle'
 
 type Player = {
   name: string
@@ -9,55 +10,9 @@ interface CardPopularPlayer {
   mostPopularPlayer: Player
   lessPopularPlayer: Player
 }
-
-interface CircleProps {
-  name: string
-}
-
 interface PickedPlayer {
   title: string
   player: Player
-}
-
-function Circle({ name }: CircleProps): JSX.Element {
-  const nameInitials = name
-    .split(' ')
-    .reduce((acc, name) => acc + name.split('')[0], '')
-  return (
-    <Box pos="relative" w={100} h={100}>
-      <Text
-        w="min"
-        pos="absolute"
-        top="50%"
-        left="50%"
-        transform="translate(-50%, -50%)"
-        color="white"
-        fontSize="2xl"
-        fontWeight="medium"
-      >
-        {nameInitials}
-      </Text>
-      <svg height="100" width="100">
-        <circle
-          cx="50"
-          cy="50"
-          r="40"
-          stroke={theme.colors.orange['500']}
-          strokeWidth="3"
-          fill={theme.colors.purple['800']}
-        />
-        <circle
-          cx="50"
-          cy="50"
-          r="45"
-          strokeDasharray="7"
-          stroke={theme.colors.purple['800']}
-          strokeWidth="3"
-          fill="none"
-        />
-      </svg>
-    </Box>
-  )
 }
 
 function PickedPlayer({ title, player }: PickedPlayer): JSX.Element {
