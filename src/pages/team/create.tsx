@@ -1,16 +1,21 @@
-import { useRef, useState } from 'react'
+import { ChangeEvent, useRef, useState } from 'react'
 import Head from 'next/head'
-import { Form } from '../../components/Form/Form'
+import * as yup from 'yup'
+import { IoSearch } from 'react-icons/io5'
 import { FormHandles, SubmitHandler } from '@unform/core'
+
+import { usePlayer } from '../../context/PlayerContext'
+
+import { Form } from '../../components/Form/Form'
 import { Input } from '../../components/Form/Input'
 import { Textarea } from '../../components/Form/Textarea'
 import { Radio } from '../../components/Form/Radio'
 import { Select } from '../../components/Form/Select'
-
 import { CreatableInput } from '../../components/Form/CreatableInput'
 import { IconInput } from '../../components/Form/IconInput'
-import { IoSearch } from 'react-icons/io5'
 import { FootballField } from '../../components/FootballField'
+import { CardList } from '../../components/CardList'
+
 import {
   Box,
   VStack,
@@ -18,12 +23,20 @@ import {
   Divider,
   Flex,
   Button,
-  Icon
+  Icon,
+  useToast
 } from '@chakra-ui/react'
-import { PlayerCard } from '../../components/PlayerCard'
+import { formatYupError } from '../../utils/formatYupError'
+import { api } from '../../services/api'
+import useRouter from 'next/router'
 
 type SubmitData = {
   name: string
+  description: string
+  website: string
+  formation: string
+  players: string[][]
+  tags: string[]
 }
 
 const formations = [
@@ -38,16 +51,85 @@ const formations = [
   { id: '9', label: '3-5-2', value: '3-5-2' }
 ]
 
+export const formTeamScheme = yup.object().shape({
+  name: yup
+    .string()
+    .min(4, 'The team name must be least four letters')
+    .required('Team name is required'),
+  website: yup
+    .string()
+    .url("The text isn't a url")
+    .required('The website is required'),
+  description: yup
+    .string()
+    .min(10, 'The description must be least ten letters')
+    .required('The description is required'),
+  formation: yup
+    .string()
+    .is(
+      formations.map(formation => formation.value),
+      'The formation is not valid'
+    )
+    .required('The formation is required'),
+  tags: yup
+    .array()
+    .of(
+      yup.object().shape({
+        label: yup.string(),
+        value: yup.string()
+      })
+    )
+    .min(1, 'One tag is required')
+    .required('Tags is required'),
+  players: yup
+    .array()
+    .of(yup.array().of(yup.mixed().required('Player is required')))
+    .required('Players is required')
+})
+
 export default function CreateTeam(): JSX.Element {
   const formRef = useRef<FormHandles>(null)
+  const toast = useToast({
+    duration: 3000,
+    isClosable: true,
+    position: 'top-right'
+  })
   const [formation, setFormation] = useState(formations[0].value)
+  const { searchPlayers, clearPlayers, clearData } = usePlayer()
+  let debouncePlayer: NodeJS.Timeout
 
-  const handleSubmit: SubmitHandler<SubmitData> = data => {
-    console.log(data)
+  const handleSubmit: SubmitHandler<SubmitData> = async data => {
+    try {
+      const res = await formTeamScheme.validate(data, { abortEarly: false })
+
+      const response = await api.post('team/create', res)
+      toast({
+        title: response.data.message,
+        status: 'success'
+      })
+      useRouter.push('/')
+    } catch (error) {
+      if (error instanceof yup.ValidationError) {
+        formRef.current.setErrors(formatYupError(error))
+      }
+    }
   }
 
   function handleFormation(): void {
+    clearData()
+    formRef.current.setFieldValue('players', [])
     setFormation(formRef.current.getFieldValue('formation'))
+    formRef.current.setErrors({ players: null })
+  }
+
+  function handleChangePlayer(event: ChangeEvent<HTMLInputElement>): void {
+    clearTimeout(debouncePlayer)
+
+    debouncePlayer = setTimeout(async () => {
+      const name = event.target.value
+      if (name.length === 0) return clearPlayers()
+      if (name.length >= 4) return searchPlayers(name)
+    }, 500)
   }
 
   return (
@@ -55,6 +137,7 @@ export default function CreateTeam(): JSX.Element {
       <Head>
         <title>create team | bit space</title>
       </Head>
+
       <Box as="main" px="4">
         <VStack
           w="full"
@@ -136,6 +219,7 @@ export default function CreateTeam(): JSX.Element {
                 <IconInput
                   name="player"
                   label="Search player"
+                  onChange={handleChangePlayer}
                   icon={<Icon as={IoSearch} w={8} h={8} color="gray.200" />}
                   placeholder="Player name"
                 />
@@ -143,14 +227,7 @@ export default function CreateTeam(): JSX.Element {
               <Flex as="fieldset" gridGap="8" w="full">
                 <FootballField name="players" formation={formation} />
 
-                <PlayerCard
-                  player={{
-                    id: '1',
-                    name: 'Francesco',
-                    age: 19,
-                    nationality: 'Brazil'
-                  }}
-                />
+                <CardList />
               </Flex>
             </Flex>
             <Button

@@ -50,11 +50,21 @@ const { teams, highestAvgAge, mostPopularPlayer, lessPopularPlayer } = {
     }
   ],
   mostPopularPlayer: {
-    name: 'Ronaldo',
+    player: {
+      id: 70740,
+      name: 'Cristian Miguel Riveros Núñez',
+      age: 39,
+      nationality: 'Paraguay'
+    },
     average: '100%'
   },
   lessPopularPlayer: {
-    name: 'Pelé',
+    player: {
+      id: 70740,
+      name: 'Cristian Miguel Riveros Núñez',
+      age: 39,
+      nationality: 'Paraguay'
+    },
     average: '89%'
   }
 }

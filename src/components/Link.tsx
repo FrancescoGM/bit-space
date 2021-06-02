@@ -26,6 +26,9 @@ export function Link({
         alignItems="center"
         borderRadius="4"
         fontSize="2xl"
+        _hover={{
+          textTransform: 'none'
+        }}
         bg="linear-gradient(to right bottom, #ed2786, #f92b71, #ff395b, #ff4b45, #ff5f2d)"
         color="white"
         {...chakraLinkProps}

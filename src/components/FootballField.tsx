@@ -1,5 +1,5 @@
 import { Flex, Box } from '@chakra-ui/react'
-import { EmptyCircle } from './Circle'
+import { DroppablePlayerCircle } from './Circle'
 
 interface FootballFieldProps {
   name: string
@@ -15,7 +15,7 @@ export function FootballField({
     .map((number, i) =>
       new Array(Number(number))
         .fill(null)
-        .map((value, j) => `${name}.${i}.${j}`)
+        .map((value, j) => `${name}[${i}][${j}]`)
     )
     .reverse()
 
@@ -59,13 +59,10 @@ export function FootballField({
           />
         </svg>
       </Box>
-      {formattedFormation.map((players, index) => (
-        <Flex
-          key={`${name}.${index}`}
-          gridGap={players.length <= 4 ? '10' : '4'}
-        >
-          {players.map(value => (
-            <EmptyCircle key={value} />
+      {formattedFormation.map((players, i) => (
+        <Flex key={`${name}.${i}`} gridGap={players.length <= 4 ? '10' : '4'}>
+          {players.map(name => (
+            <DroppablePlayerCircle key={name} name={name} />
           ))}
         </Flex>
       ))}

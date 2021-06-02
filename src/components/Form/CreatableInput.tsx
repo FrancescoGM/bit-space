@@ -73,7 +73,20 @@ export function CreatableInput({ name, label, ...rest }: Props): JSX.Element {
             ...base,
             minHeight: 250,
             marginTop: 16,
-            alignItems: 'start'
+            alignItems: 'start',
+            borderColor: error ? theme.colors.red['500'] : base.borderColor,
+            boxShadow: error
+              ? `0 0 0 1px ${theme.colors.red['500']}`
+              : base.boxShadow,
+            '&:hover': {
+              boxShadow: error
+                ? `0 0 0 1px ${theme.colors.red['500']}`
+                : base.boxShadow
+            },
+            '&:focus-within': {
+              borderColor: theme.colors.pink['500'],
+              boxShadow: `0 0 0 1px ${theme.colors.pink['500']}`
+            }
           }),
           valueContainer: base => ({ ...base, padding: 16 }),
           multiValueRemove: base => ({

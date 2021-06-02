@@ -1,18 +1,19 @@
 import { Flex, Text, Box } from '@chakra-ui/react'
-import { Circle } from './Circle'
+import { Player } from '../models/Player'
+import { PlayerCircle } from './Circle'
 
-type Player = {
-  name: string
+type PopularPlayer = {
   average: string
+  player: Player
 }
 
 interface CardPopularPlayer {
-  mostPopularPlayer: Player
-  lessPopularPlayer: Player
+  mostPopularPlayer: PopularPlayer
+  lessPopularPlayer: PopularPlayer
 }
 interface PickedPlayer {
   title: string
-  player: Player
+  player: PopularPlayer
 }
 
 function PickedPlayer({ title, player }: PickedPlayer): JSX.Element {
@@ -22,7 +23,7 @@ function PickedPlayer({ title, player }: PickedPlayer): JSX.Element {
         {title}
       </Text>
       <Flex align="center" ml="12">
-        <Circle name={player.name} />
+        <PlayerCircle player={player.player} />
         <Text ml="3" color="white" fontWeight="bold" fontSize="xl">
           {player.average}
         </Text>
