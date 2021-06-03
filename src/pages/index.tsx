@@ -10,45 +10,16 @@ import {
   SimpleGrid,
   useBreakpointValue
 } from '@chakra-ui/react'
-import { TeamList } from '../components/TeamList'
-import { ListAverageAge } from '../components/ListAverageAge'
+import { TeamList, TeamListTeam } from '../components/TeamList'
+import {
+  ListAverageAge,
+  ListAverageAgeTeam
+} from '../components/ListAverageAge'
 import { CardPopularPlayer } from '../components/CardPopularPlayer'
+import { useFetch } from '../hooks/useFetch'
+import { Loading } from '../components/Loading'
 
-const { teams, highestAvgAge, mostPopularPlayer, lessPopularPlayer } = {
-  teams: [
-    {
-      id: '1',
-      title: 'Real Madrid',
-      description: 'Ream Madrid Squad'
-    }
-  ],
-  highestAvgAge: [
-    {
-      id: '1',
-      name: 'Barcelona',
-      average: '30.5'
-    },
-    {
-      id: '2',
-      name: 'Barcelona',
-      average: '30.5'
-    },
-    {
-      id: '3',
-      name: 'Barcelona',
-      average: '30.5'
-    },
-    {
-      id: '4',
-      name: 'Barcelona',
-      average: '30.5'
-    },
-    {
-      id: '5',
-      name: 'Barcelona',
-      average: '30.5'
-    }
-  ],
+const { mostPopularPlayer, lessPopularPlayer } = {
   mostPopularPlayer: {
     player: {
       id: 70740,
@@ -69,11 +40,25 @@ const { teams, highestAvgAge, mostPopularPlayer, lessPopularPlayer } = {
   }
 }
 
+type HomeData = {
+  teams: TeamListTeam[]
+  averageAgeTeams: {
+    most: ListAverageAgeTeam[]
+    less: ListAverageAgeTeam[]
+  }
+}
+
 export default function Home(): JSX.Element {
+  const { data } = useFetch<HomeData>('/home')
+
   const isWideVersion = useBreakpointValue({
     xl: true,
     base: false
   })
+
+  if (!data) {
+    return <Loading />
+  }
 
   return (
     <>
@@ -88,7 +73,7 @@ export default function Home(): JSX.Element {
           mx="auto"
           mt="4.5rem"
           pb="4"
-          d={isWideVersion ? 'grid' : 'flex'}
+          d={isWideVersion === undefined || isWideVersion ? 'grid' : 'flex'}
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
@@ -114,11 +99,12 @@ export default function Home(): JSX.Element {
               <Link nextLinkProps={{ href: '/team/create' }}>+</Link>
             </Flex>
             <Divider color="gray.200" my="16px" />
-            <TeamList teams={teams} />
+            <TeamList teams={data.teams} />
           </GridItem>
           <GridItem
             as="aside"
             w="full"
+            h="full"
             maxW={600}
             p="5"
             borderRadius="12"
@@ -136,8 +122,14 @@ export default function Home(): JSX.Element {
             </Heading>
             <Divider my="20px" />
             <SimpleGrid columns={2} spacing="26px">
-              <ListAverageAge title="Highest avg age" data={highestAvgAge} />
-              <ListAverageAge title="Lowest avg age" data={highestAvgAge} />
+              <ListAverageAge
+                title="Highest avg age"
+                data={data.averageAgeTeams.most}
+              />
+              <ListAverageAge
+                title="Lowest avg age"
+                data={data.averageAgeTeams.less}
+              />
             </SimpleGrid>
           </GridItem>
           <GridItem as="aside" w="full" h="full" maxW={600} colSpan={1}>

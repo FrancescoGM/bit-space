@@ -135,11 +135,13 @@ export function DroppablePlayerCircle({
       name: fieldName,
       getValue: () => player,
       setValue: value => {
+        console.log('set')
         addPlayer(value)
         setPlayer(value)
       },
       clearValue: () => {
-        setPlayer(player)
+        console.log('clear')
+        setPlayer(null)
         removePlayer(player)
       }
     })

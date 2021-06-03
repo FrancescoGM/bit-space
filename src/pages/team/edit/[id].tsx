@@ -4,17 +4,17 @@ import * as yup from 'yup'
 import { IoSearch } from 'react-icons/io5'
 import { FormHandles, SubmitHandler } from '@unform/core'
 
-import { usePlayer } from '../../context/PlayerContext'
+import { usePlayer } from '../../../context/PlayerContext'
 
-import { Form } from '../../components/Form/Form'
-import { Input } from '../../components/Form/Input'
-import { Textarea } from '../../components/Form/Textarea'
-import { Radio } from '../../components/Form/Radio'
-import { Select } from '../../components/Form/Select'
-import { CreatableInput } from '../../components/Form/CreatableInput'
-import { IconInput } from '../../components/Form/IconInput'
-import { FootballField } from '../../components/FootballField'
-import { CardList } from '../../components/CardList'
+import { Form } from '../../../components/Form/Form'
+import { Input } from '../../../components/Form/Input'
+import { Textarea } from '../../../components/Form/Textarea'
+import { Radio } from '../../../components/Form/Radio'
+import { Select } from '../../../components/Form/Select'
+import { CreatableInput } from '../../../components/Form/CreatableInput'
+import { IconInput } from '../../../components/Form/IconInput'
+import { FootballField } from '../../../components/FootballField'
+import { CardList } from '../../../components/CardList'
 
 import {
   Box,
@@ -26,9 +26,13 @@ import {
   Icon,
   useToast
 } from '@chakra-ui/react'
-import { formatYupError } from '../../utils/formatYupError'
-import { api } from '../../services/api'
-import useRouter from 'next/router'
+import { formatYupError } from '../../../utils/formatYupError'
+import { api } from '../../../services/api'
+import { useRouter } from 'next/router'
+import { formations, formTeamScheme } from '../create'
+import { Team } from '../../../models/Team'
+import { GetServerSideProps } from 'next'
+import { useFetch } from '../../../hooks/useFetch'
 
 type SubmitData = {
   name: string
@@ -39,79 +43,47 @@ type SubmitData = {
   tags: string[]
 }
 
-export const formations = [
-  { id: '1', label: '4-4-2', value: '4-4-2' },
-  { id: '2', label: '5-4-1', value: '5-4-1' },
-  { id: '3', label: '4-3-3', value: '4-3-3' },
-  { id: '4', label: '4-3-2-1', value: '4-3-2-1' },
-  { id: '5', label: '4-2-3-1', value: '4-2-3-1' },
-  { id: '6', label: '4-5-1', value: '4-5-1' },
-  { id: '7', label: '3-4-3', value: '3-4-3' },
-  { id: '8', label: '3-5-2', value: '3-5-2' }
-]
+type EditTeam = Team & { id: string }
 
-export const formTeamScheme = yup.object().shape({
-  name: yup
-    .string()
-    .min(4, 'The team name must be least four letters')
-    .required('Team name is required'),
-  website: yup
-    .string()
-    .url("The text isn't a url")
-    .required('The website is required'),
-  description: yup
-    .string()
-    .min(10, 'The description must be least ten letters')
-    .required('The description is required'),
-  formation: yup
-    .string()
-    .is(
-      formations.map(formation => formation.value),
-      'The formation is not valid'
-    )
-    .required('The formation is required'),
-  tags: yup
-    .array()
-    .of(
-      yup.object().shape({
-        label: yup.string(),
-        value: yup.string()
-      })
-    )
-    .min(1, 'One tag is required')
-    .required('Tags is required'),
-  players: yup
-    .array()
-    .of(yup.array().of(yup.mixed().required('Player is required')))
-    .required('Players is required'),
-  created_at: yup.date().notRequired()
-})
+interface EditTeamProps {
+  team: EditTeam
+}
 
-export default function CreateTeam(): JSX.Element {
+export default function EditTeam({ team }: EditTeamProps): JSX.Element {
   const formRef = useRef<FormHandles>(null)
+  const router = useRouter()
+  const { id } = router.query
+
+  const { data } = useFetch<EditTeam>(`/team/${id}`)
+
+  const [formation, setFormation] = useState(team.formation)
+  const { searchPlayers, clearPlayers, clearData, addPlayers } = usePlayer()
+
+  let debouncePlayer: NodeJS.Timeout
+
   const toast = useToast({
+    status: 'success',
     duration: 3000,
     isClosable: true,
     position: 'top-right'
   })
-  const [formation, setFormation] = useState(formations[0].value)
-  const { searchPlayers, clearPlayers, clearData } = usePlayer()
-  let debouncePlayer: NodeJS.Timeout
 
   useEffect(() => {
-    clearData()
+    if (data) {
+      clearData()
+      addPlayers(team.players.flat(2))
+    }
   }, [])
 
   const handleSubmit: SubmitHandler<SubmitData> = async data => {
     try {
       const res = await formTeamScheme.validate(data, { abortEarly: false })
 
-      const response = await api.post('team/create', res)
+      const response = await api.post(`team/edit/${router.query.id}`, res)
       toast({
-        title: response.data.message,
-        status: 'success'
+        title: response.data.message
       })
-      useRouter.push('/')
+      router.push('/')
     } catch (error) {
       if (error instanceof yup.ValidationError) {
         formRef.current.setErrors(formatYupError(error))
@@ -121,7 +93,7 @@ export default function CreateTeam(): JSX.Element {
 
   function handleFormation(): void {
     clearData()
-    formRef.current.setFieldValue('players', [])
+    formRef.current.setFieldValue('players', [[], [], [], []])
     setFormation(formRef.current.getFieldValue('formation'))
     formRef.current.setErrors({ players: null })
   }
@@ -139,7 +111,7 @@ export default function CreateTeam(): JSX.Element {
   return (
     <>
       <Head>
-        <title>create team | bit space</title>
+        <title>edit team | bit space</title>
       </Head>
 
       <Box as="main" px="4">
@@ -155,12 +127,13 @@ export default function CreateTeam(): JSX.Element {
           boxShadow="0px 0px 20px #00000055"
         >
           <Heading as="h1" mr="auto" fontSize="2xl" color="pink.500">
-            Create your team
+            Edit your team
           </Heading>
           <Divider my="16px !important" />
           <Form
             ref={formRef}
             onSubmit={handleSubmit}
+            initialData={team}
             w="full"
             d="flex"
             flexDirection="column"
@@ -248,4 +221,15 @@ export default function CreateTeam(): JSX.Element {
       </Box>
     </>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  const { id } = params
+  const { data } = await api.get(`/team/${id}`)
+
+  return {
+    props: {
+      team: data
+    }
+  }
 }

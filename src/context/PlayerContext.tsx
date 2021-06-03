@@ -8,6 +8,7 @@ interface PlayerContextData {
   setIsDragging: (value: boolean) => void
   searchPlayers: (name: string) => Promise<void>
   addPlayer: (player: Player) => void
+  addPlayers: (players: Player[]) => void
   clearPlayers: () => void
   clearData: () => void
   removePlayer: (player: Player) => void
@@ -59,6 +60,12 @@ export function PlayerProvider({ children }: PlayerProviderProps): JSX.Element {
 
     return player
   }
+  function addPlayers(players: Player[]): void {
+    setBlacklistPlayers(oldBlacklistPlayers => [
+      ...players,
+      ...oldBlacklistPlayers
+    ])
+  }
 
   function clearPlayers(): void {
     setPlayers([])
@@ -89,7 +96,7 @@ export function PlayerProvider({ children }: PlayerProviderProps): JSX.Element {
   }
 
   function clearData(): void {
-    setPlayers(oldPlayers => [...oldPlayers, ...blacklistPlayers])
+    setPlayers([])
     setBlacklistPlayers([])
   }
 
@@ -101,8 +108,9 @@ export function PlayerProvider({ children }: PlayerProviderProps): JSX.Element {
         setIsDragging,
         searchPlayers,
         addPlayer,
-        clearPlayers,
+        addPlayers,
         clearData,
+        clearPlayers,
         removePlayer,
         togglePlayer
       }}

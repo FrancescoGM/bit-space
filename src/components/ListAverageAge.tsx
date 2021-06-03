@@ -1,6 +1,6 @@
 import { Box, Heading, Text, Flex } from '@chakra-ui/react'
 
-type Data = {
+export type ListAverageAgeTeam = {
   id: string
   name: string
   average: string | number
@@ -8,7 +8,7 @@ type Data = {
 
 interface ListAverageAgeProps {
   title: string
-  data: Data[]
+  data: ListAverageAgeTeam[]
 }
 
 export function ListAverageAge(props: ListAverageAgeProps): JSX.Element {
