@@ -112,6 +112,7 @@ export default function CreateTeam(): JSX.Element {
         status: 'success'
       })
     } catch (error) {
+      console.log(error)
       if (error instanceof yup.ValidationError) {
         formRef.current.setErrors(formatYupError(error))
       }
