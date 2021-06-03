@@ -19,7 +19,7 @@ export default async (
     }
 
     const data = await formTeamScheme.validate(req.body, { stripUnknown: true })
-    console.log(data)
+
     await fauna.query(
       q.Update(q.Ref(q.Collection('teams'), id), {
         data: {

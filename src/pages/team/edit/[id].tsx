@@ -184,6 +184,7 @@ export default function EditTeam({ team }: EditTeamProps): JSX.Element {
                 <Select
                   name="formation"
                   label="Formation"
+                  disabled
                   options={formations}
                   onChange={() => handleFormation()}
                 />
