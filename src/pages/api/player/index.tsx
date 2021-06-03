@@ -33,7 +33,6 @@ export default async (
 
     return res.status(200).json(players)
   } catch (error) {
-    console.log(error)
-    return res.status(500).end()
+    return res.status(500).end(error)
   }
 }
