@@ -1,38 +1,37 @@
 import { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
 import Head from 'next/head'
 import * as yup from 'yup'
 import { IoSearch } from 'react-icons/io5'
 import { FormHandles, SubmitHandler } from '@unform/core'
 
+import { api } from '../../../services/api'
+import { Team } from '../../../models/Team'
+import { formations, formTeamScheme } from '../create'
 import { usePlayer } from '../../../context/PlayerContext'
 
 import { Form } from '../../../components/Form/Form'
 import { Input } from '../../../components/Form/Input'
-import { Textarea } from '../../../components/Form/Textarea'
 import { Radio } from '../../../components/Form/Radio'
+import { PlayerCardList } from '../../../components/PlayerCardList'
 import { Select } from '../../../components/Form/Select'
-import { CreatableInput } from '../../../components/Form/CreatableInput'
+import { Textarea } from '../../../components/Form/Textarea'
 import { IconInput } from '../../../components/Form/IconInput'
 import { FootballField } from '../../../components/FootballField'
-import { CardList } from '../../../components/CardList'
+import { CreatableInput } from '../../../components/Form/CreatableInput'
 
 import {
   Box,
   VStack,
   Heading,
   Divider,
+  Icon,
   Flex,
   Button,
-  Icon,
   useToast
 } from '@chakra-ui/react'
 import { formatYupError } from '../../../utils/formatYupError'
-import { api } from '../../../services/api'
-import { useRouter } from 'next/router'
-import { formations, formTeamScheme } from '../create'
-import { Team } from '../../../models/Team'
-import { GetServerSideProps } from 'next'
-import { useFetch } from '../../../hooks/useFetch'
 
 type SubmitData = {
   name: string
@@ -52,9 +51,6 @@ interface EditTeamProps {
 export default function EditTeam({ team }: EditTeamProps): JSX.Element {
   const formRef = useRef<FormHandles>(null)
   const router = useRouter()
-  const { id } = router.query
-
-  const { data } = useFetch<EditTeam>(`/team/${id}`)
 
   const [formation, setFormation] = useState(team.formation)
   const { searchPlayers, clearPlayers, clearData, addPlayers } = usePlayer()
@@ -69,10 +65,8 @@ export default function EditTeam({ team }: EditTeamProps): JSX.Element {
   })
 
   useEffect(() => {
-    if (data) {
-      clearData()
-      addPlayers(team.players.flat(2))
-    }
+    clearData()
+    addPlayers(team.players.flat(2))
   }, [])
 
   const handleSubmit: SubmitHandler<SubmitData> = async data => {
@@ -93,7 +87,7 @@ export default function EditTeam({ team }: EditTeamProps): JSX.Element {
 
   function handleFormation(): void {
     clearData()
-    formRef.current.setFieldValue('players', [[], [], [], []])
+    formRef.current.setData({ players: [] })
     setFormation(formRef.current.getFieldValue('formation'))
     formRef.current.setErrors({ players: null })
   }
@@ -204,7 +198,7 @@ export default function EditTeam({ team }: EditTeamProps): JSX.Element {
               <Flex as="fieldset" gridGap="8" w="full">
                 <FootballField name="players" formation={formation} />
 
-                <CardList />
+                <PlayerCardList />
               </Flex>
             </Flex>
             <Button
@@ -225,7 +219,7 @@ export default function EditTeam({ team }: EditTeamProps): JSX.Element {
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const { id } = params
-  const { data } = await api.get(`/team/${id}`)
+  const { data } = await api.get(`team/${id}`)
 
   return {
     props: {

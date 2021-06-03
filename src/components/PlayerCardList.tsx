@@ -5,15 +5,17 @@ import { theme } from '../styles/theme'
 import { useDrop } from 'react-dnd'
 import { Item } from './Circle'
 
-export function CardList(): JSX.Element {
+export function PlayerCardList(): JSX.Element {
   const { players } = usePlayer()
   const { isDragging, removePlayer } = usePlayer()
 
   const [, dropRef] = useDrop({
     accept: 'CIRCLE',
     drop: (item: Item) => {
-      removePlayer(item.player)
-      item.setPlayer(null)
+      if (item.player) {
+        removePlayer(item.player)
+        item.setPlayer(null)
+      }
     }
   })
 

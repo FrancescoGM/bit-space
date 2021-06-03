@@ -104,23 +104,25 @@ export function DroppablePlayerCircle({
   const [, dropRef] = useDrop({
     accept: ['CARD', 'CIRCLE'],
     drop: (item: Item) => {
-      if (item.type === 'CIRCLE') {
-        if (!!player && !!item.player) {
-          setPlayer(item.player)
-          item.setPlayer(player)
-          return
+      if (item.player) {
+        if (item.type === 'CIRCLE') {
+          if (!!player && !!item.player) {
+            setPlayer(item.player)
+            item.setPlayer(player)
+            return
+          }
         }
-      }
-      if (player) {
-        togglePlayer(player, item.player)
-        setPlayer(item.player)
-      } else {
-        if (item.type === 'CARD') {
-          addPlayer(item.player)
+        if (player) {
+          togglePlayer(player, item.player)
           setPlayer(item.player)
         } else {
-          setPlayer(item.player)
-          item.setPlayer(null)
+          if (item.type === 'CARD') {
+            addPlayer(item.player)
+            setPlayer(item.player)
+          } else {
+            setPlayer(item.player)
+            item.setPlayer(null)
+          }
         }
       }
     }
@@ -215,6 +217,7 @@ export function DroppablePlayerCircle({
       </Box>
     )
   }
+
   dropRef(circleRef)
   return (
     <Box pos="relative" w={90} h={90} ref={circleRef}>

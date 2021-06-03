@@ -72,25 +72,7 @@ export function TeamList(props: TeamListProps): JSX.Element {
 
   return (
     <>
-      <Table
-        variant="unstyled"
-        mt="0px !important"
-        pr="2"
-        css={{
-          '&::-webkit-scrollbar': {
-            width: '8px'
-          },
-
-          '&::-webkit-scrollbar-track': {
-            background: 'transparent'
-          },
-
-          '&::-webkit-scrollbar-thumb': {
-            backgroundColor: theme.colors.gray['200'],
-            borderRadius: '20px'
-          }
-        }}
-      >
+      <Table variant="unstyled" mt="0px !important" pr="2">
         <Thead>
           <Tr>
             <Th

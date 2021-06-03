@@ -1,20 +1,23 @@
 import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import Head from 'next/head'
+import useRouter from 'next/router'
 import * as yup from 'yup'
 import { IoSearch } from 'react-icons/io5'
 import { FormHandles, SubmitHandler } from '@unform/core'
 
+import { api } from '../../services/api'
 import { usePlayer } from '../../context/PlayerContext'
+import { formatYupError } from '../../utils/formatYupError'
 
 import { Form } from '../../components/Form/Form'
 import { Input } from '../../components/Form/Input'
-import { Textarea } from '../../components/Form/Textarea'
 import { Radio } from '../../components/Form/Radio'
+import { PlayerCardList } from '../../components/PlayerCardList'
 import { Select } from '../../components/Form/Select'
-import { CreatableInput } from '../../components/Form/CreatableInput'
+import { Textarea } from '../../components/Form/Textarea'
 import { IconInput } from '../../components/Form/IconInput'
 import { FootballField } from '../../components/FootballField'
-import { CardList } from '../../components/CardList'
+import { CreatableInput } from '../../components/Form/CreatableInput'
 
 import {
   Box,
@@ -26,9 +29,6 @@ import {
   Icon,
   useToast
 } from '@chakra-ui/react'
-import { formatYupError } from '../../utils/formatYupError'
-import { api } from '../../services/api'
-import useRouter from 'next/router'
 
 type SubmitData = {
   name: string
@@ -105,13 +105,12 @@ export default function CreateTeam(): JSX.Element {
   const handleSubmit: SubmitHandler<SubmitData> = async data => {
     try {
       const res = await formTeamScheme.validate(data, { abortEarly: false })
-
       const response = await api.post('team/create', res)
+      useRouter.push('/')
       toast({
         title: response.data.message,
         status: 'success'
       })
-      useRouter.push('/')
     } catch (error) {
       if (error instanceof yup.ValidationError) {
         formRef.current.setErrors(formatYupError(error))
@@ -231,7 +230,7 @@ export default function CreateTeam(): JSX.Element {
               <Flex as="fieldset" gridGap="8" w="full">
                 <FootballField name="players" formation={formation} />
 
-                <CardList />
+                <PlayerCardList />
               </Flex>
             </Flex>
             <Button
@@ -241,7 +240,7 @@ export default function CreateTeam(): JSX.Element {
               color="white"
               bg="linear-gradient(to right bottom, #ed2786, #f92b71, #ff395b, #ff4b45, #ff5f2d)"
             >
-              Save
+              Create
             </Button>
           </Form>
         </VStack>

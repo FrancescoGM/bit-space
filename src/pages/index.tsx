@@ -1,5 +1,13 @@
 import Head from 'next/head'
+
+import { useHome } from '../hooks/useHome'
+
 import { Link } from '../components/Link'
+import { Loading } from '../components/Loading'
+import { TeamList } from '../components/TeamList'
+import { ListAverageAge } from '../components/ListAverageAge'
+import { CardPopularPlayer } from '../components/CardPopularPlayer'
+
 import {
   Box,
   Divider,
@@ -10,14 +18,6 @@ import {
   SimpleGrid,
   useBreakpointValue
 } from '@chakra-ui/react'
-import { TeamList, TeamListTeam } from '../components/TeamList'
-import {
-  ListAverageAge,
-  ListAverageAgeTeam
-} from '../components/ListAverageAge'
-import { CardPopularPlayer } from '../components/CardPopularPlayer'
-import { useFetch } from '../hooks/useFetch'
-import { Loading } from '../components/Loading'
 
 const { mostPopularPlayer, lessPopularPlayer } = {
   mostPopularPlayer: {
@@ -32,24 +32,16 @@ const { mostPopularPlayer, lessPopularPlayer } = {
   lessPopularPlayer: {
     player: {
       id: 70740,
-      name: 'Cristian Miguel Riveros Núñez',
-      age: 39,
-      nationality: 'Paraguay'
+      name: 'Francesco Gonzalez Muller',
+      age: 26,
+      nationality: 'Brazil'
     },
     average: '89%'
   }
 }
 
-type HomeData = {
-  teams: TeamListTeam[]
-  averageAgeTeams: {
-    most: ListAverageAgeTeam[]
-    less: ListAverageAgeTeam[]
-  }
-}
-
 export default function Home(): JSX.Element {
-  const { data } = useFetch<HomeData>('/home')
+  const { data } = useHome()
 
   const isWideVersion = useBreakpointValue({
     xl: true,
@@ -96,7 +88,12 @@ export default function Home(): JSX.Element {
               <Heading as="h2" color="pink.500" fontSize="1.625rem">
                 My Teams
               </Heading>
-              <Link nextLinkProps={{ href: '/team/create' }}>+</Link>
+              <Link
+                nextLinkProps={{ href: '/team/create' }}
+                chakraLinkProps={{ 'aria-label': 'Create team button' }}
+              >
+                +
+              </Link>
             </Flex>
             <Divider color="gray.200" my="16px" />
             <TeamList teams={data.teams} />

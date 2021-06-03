@@ -30,7 +30,7 @@ export default async (
       )
     )
 
-    const players = teams.data.map(team => team.data.players).flat(2)
+    // const players = teams.data.map(team => team.data.players).flat(2)
 
     const ageTeams = teams.data.map(team => ({
       id: team.ref.id,
@@ -50,27 +50,10 @@ export default async (
       averageAgeTeams: {
         most: ageTeams
           .sort((a, b) => Number(a.average) - Number(b.average))
-          .slice(0, 4),
+          .slice(0, 5),
         less: ageTeams
           .sort((a, b) => Number(b.average) - Number(a.average))
-          .slice(0, 4)
-      },
-
-      pickedPlayer: {
-        most: players
-          .sort(
-            (a, b) =>
-              players.filter(v => v.id === a.id).length -
-              players.filter(v => v.id === b.id).length
-          )
-          .pop(),
-        less: players
-          .sort(
-            (a, b) =>
-              players.filter(v => v.id === a.id).length +
-              players.filter(v => v.id === b.id).length
-          )
-          .pop()
+          .slice(0, 5)
       }
     }
     return res.status(200).json(data)
