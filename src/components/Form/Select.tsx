@@ -18,9 +18,16 @@ interface Props extends ChakraSelectProps {
   name: string
   label?: string
   options: Option[]
+  disabled?: boolean
 }
 
-export function Select({ name, label, options, ...rest }: Props): JSX.Element {
+export function Select({
+  name,
+  label,
+  options,
+  disabled = false,
+  ...rest
+}: Props): JSX.Element {
   const selectRef = useRef(null)
   const { fieldName, defaultValue, registerField, error } = useField(name)
 
@@ -44,6 +51,7 @@ export function Select({ name, label, options, ...rest }: Props): JSX.Element {
         ref={selectRef}
         h={50}
         mt="4"
+        disabled={disabled}
         className="select"
         _focus={{
           boxShadow: `0 0 0 1px ${theme.colors.pink['500']}`,
